@@ -104,4 +104,39 @@ trash_wheel_data
 
 ```
 
+### Answer Questions
 
+In the resulting dataset, there are 641 observations. As an example, the variable "dumpster" has 641 641 observations, of which 547 are from the "Mr. Trash Wheel" dataset and the remaining 94 from the "Professor Trash Wheel" dataset.
+
+```{r}
+trash_wheel_data %>% 
+  select(dumpster, trash_wheel_source) %>% 
+  distinct()
+
+trash_wheel_data %>% 
+  filter(trash_wheel_source == "Mr.") %>% 
+  select(dumpster, trash_wheel_source) %>% 
+  distinct()
+
+trash_wheel_data %>% 
+  filter(trash_wheel_source == "Professor") %>% 
+  select(dumpster, trash_wheel_source) %>% 
+  distinct()
+```
+The total weight of trash collected by Professor Trash Wheel was  190.12 tons.
+
+```{r}
+trash_wheel_data %>% 
+  filter(trash_wheel_source == "Professor") %>% 
+  summarise(total_weight = sum(weight_tons, na.rm = TRUE))
+
+```
+
+The total number of sports balls collected by Mr. Trash Wheel in 2020 was 856.
+
+```{r}
+trash_wheel_data %>% 
+  filter(trash_wheel_source == "Mr." & year == "2020") %>% 
+  summarise(total_sports_balls = sum(sports_balls, na.rm = TRUE))
+
+```
