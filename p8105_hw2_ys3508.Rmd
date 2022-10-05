@@ -6,15 +6,15 @@ output: github_document
 knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
 ```
 
-# load package
+## load package
 ```{r}
 library(tidyverse) 
 library(readxl)
 ```
 
 
-# Problem 1
-## Load/Clean data
+## Problem 1
+### Load/Clean Data
 ```{r}
 nyc_mta = 
   read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv", 
@@ -27,7 +27,7 @@ nyc_mta =
 ```
 
 These data are not "tidy" as they now stand; route number and route should both be variables. That is, we would need to change "route" variables from wide to long format in order to have a clean dataset. 
-## Answer questions
+### Answer Questions
 ```{r}
 nyc_mta %>% 
   select(station_name, line) %>% 
@@ -67,3 +67,41 @@ nyc_mta %>%
   select(station_name, line) %>% 
   distinct
 ```
+
+## Problem 2
+### Load/Clean Data
+
+```{r}
+mr_trash_wheel = 
+  readxl::read_excel("./data/Trash Wheel Collection Data.xlsx",
+             sheet = "Mr. Trash Wheel", range = "A2:N550") %>%
+    janitor::clean_names() %>%
+  filter(dumpster >= 1) %>% 
+  mutate(sports_balls = as.integer(sports_balls)) %>%
+  mutate(trash_wheel_source = "Mr.")
+
+mr_trash_wheel
+```
+
+```{r}
+pro_trash_wheel = 
+  readxl::read_excel("./data/Trash Wheel Collection Data.xlsx",
+             sheet = "Professor Trash Wheel", range = "A2:M97") %>%
+    janitor::clean_names() %>%
+  filter(dumpster >= 1) %>%
+  mutate(trash_wheel_source = "Professor") %>% 
+  mutate(year = as.character(year))
+
+pro_trash_wheel
+```
+
+### Join Two Dataset
+```{r}
+trash_wheel_data = 
+  full_join(mr_trash_wheel, pro_trash_wheel, by  = c('dumpster','month','year','date','weight_tons','volume_cubic_yards','plastic_bottles','polystyrene','cigarette_butts','glass_bottles', 'grocery_bags', 'chip_bags', 'homes_powered', 'trash_wheel_source'))
+
+trash_wheel_data
+
+```
+
+
