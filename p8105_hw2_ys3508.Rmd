@@ -140,3 +140,87 @@ trash_wheel_data %>%
   summarise(total_sports_balls = sum(sports_balls, na.rm = TRUE))
 
 ```
+
+## Problem 3
+### Load/Clean Data
+
+```{r}
+pols = 
+  read_csv("/Users/ovo/Desktop/FALL/Data Science/Assignments/p8105_hw2_ys3508/data/p8105_hw2_ajg2202/data/fivethirtyeight_datasets/pols_month.csv") %>%
+  janitor::clean_names() %>%
+  separate(col = mon, into = c('year', 'month', 'day'), sep = '-') %>% 
+  mutate(month = ifelse(month == "01", "jan", 
+                        ifelse(month == "02", "feb", 
+                               ifelse(month == "03", "mar", 
+                                      ifelse(month == "04", "apr", 
+                                             ifelse(month == "05", "may", 
+                                                    ifelse(month == "06", "jun", 
+                                                           ifelse(month == "07", "jul", 
+                                                                  ifelse(month == "08", "aug",
+                                                                         ifelse(month == "09", "sep", 
+                                                                                ifelse(month == "10", "oct", 
+                                                                                       ifelse(month == "11", "nov", "dec")))))))))))) %>%  
+  mutate(president = ifelse(prez_dem == "1", "Democratic", "Republican")) %>% 
+  select(-prez_dem, -prez_gop, -day)
+
+pols
+```
+
+```{r}
+snp = 
+  read_csv("/Users/ovo/Desktop/FALL/Data Science/Assignments/p8105_hw2_ys3508/data/p8105_hw2_ajg2202/data/fivethirtyeight_datasets/snp.csv") %>%
+  janitor::clean_names() %>%
+  separate(col = date, into = c('month', 'day', 'year'), sep = '/') %>% 
+  mutate(month = ifelse(month == "01", "jan", 
+                        ifelse(month == "02", "feb", 
+                               ifelse(month == "03", "mar", 
+                                      ifelse(month == "04", "apr", 
+                                             ifelse(month == "05", "may", 
+                                                    ifelse(month == "06", "jun", 
+                                                           ifelse(month == "07", "jul", 
+                                                                  ifelse(month == "08", "aug",
+                                                                         ifelse(month == "09", "sep", 
+                                                                                ifelse(month == "10", "oct", 
+                                                                                       ifelse(month == "11", "nov", "dec")))))))))))) %>% 
+  mutate(year = as.numeric(year)) %>% 
+  mutate(year = ifelse(year > 90, year  + 1900, year  + 2000)) %>%
+  mutate(year = as.character(year)) %>% 
+  select( -day) %>% 
+  select("year", "month", everything())
+ 
+
+snp
+```
+
+
+```{r}
+unemployment = 
+  read_csv("/Users/ovo/Desktop/FALL/Data Science/Assignments/p8105_hw2_ys3508/data/p8105_hw2_ajg2202/data/fivethirtyeight_datasets/unemployment.csv") %>%
+  janitor::clean_names() %>%
+  pivot_longer(
+    jan:dec,
+    names_to = "month",
+    values_to = "unemployment") %>%
+  mutate(year = as.character(year)) %>% 
+  select("year", "month", everything())
+ 
+
+unemployment
+```
+
+### merge dataset
+```{r}
+# merging snp into pols
+
+snp_pols = merge(pols, snp, by=c("year","month"),all.x=TRUE)
+
+# merging unemployment into the result
+total = left_join(snp_pols, unemployment, by=c("year","month"))
+
+```
+
+Snp and pols are being merged in the dataset 'snp pols'. This "snp pols" has 10 variables and 1038 observations. The years 1947 through 2015 are included. Important variables include "month" and "year," as well as "gov gop," "sen gop," "rep gop," "gov dem," "sen dem," "rep dem," "president," and "close."
+
+We obtained the dataset "total" with 1038 observations and 11 variables after combining unemployment into the outcome. also ranges from 1947 to 2015. Prior variables included the variable "unemployment."
+
+
