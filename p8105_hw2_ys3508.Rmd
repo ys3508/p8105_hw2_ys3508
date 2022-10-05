@@ -1,0 +1,69 @@
+---
+title: "Data Tidying"
+output: github_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
+```
+
+# load package
+```{r}
+library(tidyverse) 
+library(readxl)
+```
+
+
+# Problem 1
+## Load/Clean data
+```{r}
+nyc_mta = 
+  read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv", 
+    col_types = cols(Route8 = "c", Route9 = "c", Route10 = "c", Route11 = "c")) %>%
+  janitor::clean_names() %>%
+  select(line, station_name, station_latitude, station_longitude, route1:route11, entry, vending, entrance_type, ada) %>% 
+  rename(ADA_compliance = ada)%>% 
+  mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
+
+```
+
+These data are not "tidy" as they now stand; route number and route should both be variables. That is, we would need to change "route" variables from wide to long format in order to have a clean dataset. 
+## Answer questions
+```{r}
+nyc_mta %>% 
+  select(station_name, line) %>% 
+  distinct
+
+nyc_mta %>% 
+  filter(ADA_compliance == TRUE) %>% 
+  select(station_name, line) %>% 
+  distinct
+```
+
+There are 465 distinct stations, and 84 of them are ADA compliant.
+
+```{r}
+nyc_mta %>% 
+  filter(vending == "NO") %>% 
+  pull(entry) %>% 
+  mean
+```
+
+```{r}
+nyc_mta %>% 
+  pivot_longer(
+    route1:route11,
+    names_to = "route_num",
+    values_to = "route") %>% 
+  filter(route == "A") %>% 
+  select(station_name, line) %>% 
+  distinct
+
+nyc_mta %>% 
+  pivot_longer(
+    route1:route11,
+    names_to = "route_num",
+    values_to = "route") %>% 
+  filter(route == "A", ADA_compliance == TRUE) %>% 
+  select(station_name, line) %>% 
+  distinct
+```
